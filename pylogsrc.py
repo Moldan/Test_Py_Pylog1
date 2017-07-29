@@ -18,8 +18,9 @@
 __version__ = "3.0-dev"
 
 import copy
-from itertools import izip
+import itertools
 import math
+import unittest
 
 ###########################################################
 #
@@ -225,7 +226,7 @@ class Stack:
             elif isinstance(T2, Term):
                 if T1.functor != T2.functor: return False
                 if T1.arity != T2.arity: return False
-                for x, y in izip(T1.args, T2.args):
+                for x, y in zip(T1.args, T2.args):
                     if not self._unify(x, y): return False
             else:
                 return False
@@ -657,12 +658,49 @@ class IfThenElse(Term3):
 
 """
 
+class f(Term): pass
+class g(Term): pass
+
+class UnificationTestCase(unittest.TestCase):
+
+    def test_unify(self):
+        """Is five successfully determined to be prime?"""
+        self.assertTrue(is_prime(5))
+
 if __name__ == '__main__':
 
     import sys
 
     for arg in sys.argv[1:]:
         if arg == '--version':
-            print __version__
+            print(__version__)
         else:
-            print "Bad argument:", arg
+            print("Bad argument:", arg)
+
+    print("Simple unification")
+    X = Var('X')
+    Y = Var('Y')
+    a = f(X,g(Y,2))
+    b = f(g(1,2),X)
+    s0 = Stack()
+    print("\tBefore unification")
+    print("\t\ta =", s0(a))
+    print("\t\tb =", s0(b))
+    s1 = s0.unify(a, b).__next__()
+    print("\tAfter unification")
+    print("\t\ta =", s1(a))
+    print("\t\tb =", s1(b))
+
+    print("Recursive terms")
+    A = Var('A')
+    a = f(A)
+    s0 = Stack()
+    print("\tBefore unification")
+    print("\t\tA =", s0(A))
+    print("\t\ta =", s0(a))
+    s1 = s0.unify(a, A).__next__()
+    print("\tAfter unification")
+    print("\t\tA =", s1(A))
+    print("\t\ta =", s1(a))
+
+    
